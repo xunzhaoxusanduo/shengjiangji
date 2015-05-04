@@ -1,0 +1,8 @@
+---- ucSwitch_Mode Matches (7 in 0 files) ----
+Interrupt.c:unsigned char ucSwitch_Mode = 0x55;          //init mode,the motor can't auto moving
+Interrupt.c:			ucSwitch_Mode = 0xaa;
+Interrupt.c:				ucSwitch_Mode = 0x55;
+Interrupt.c:				ucSwitch_Mode = 0x55;
+Interrupt.c:			ucSwitch_Mode = 0x55;
+Interrupt.c:					ucSwitch_Mode = 0xaa;
+Interrupt.c:					//ucSwitch_Mode = 0xaa;

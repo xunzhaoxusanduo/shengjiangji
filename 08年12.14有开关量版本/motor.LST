@@ -1,0 +1,218 @@
+C51 COMPILER V7.50   MOTOR                                                                 12/15/2008 12:20:03 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE MOTOR
+OBJECT MODULE PLACED IN motor.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE motor.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include"SST89x5x4.h"
+   2          #include "main.h"
+   3          #include "key.h"
+   4          #include "init.h"
+   5          #include "motor.h"
+   6          unsigned int uiI1_MotorDelay = 0x00; //偏转电机延时
+   7          //--------------------------------------
+   8          //
+   9          //--------------------------------------
+  10          void motor_rise(void)
+  11          {
+  12   1              if(L3)
+  13   1              {
+  14   2                      RISE = OFF;
+  15   2                      FALL = OFF;
+  16   2              }
+  17   1              else
+  18   1              {
+  19   2                      if(L1)
+  20   2                      {
+  21   3                                      RISE = OFF;
+  22   3                                      FALL = OFF;     
+  23   3                      }
+  24   2                      else
+  25   2                      {
+  26   3                                      RISE = ON;
+  27   3                                      FALL = OFF;
+  28   3                                      ucMotor_RuningMode = 0xaa;
+  29   3                      }
+  30   2                      bFisrt_Init = FALSE;
+  31   2              }
+  32   1      }
+  33          //--------------------------------------
+  34          //
+  35          //--------------------------------------
+  36          void motor_fall(void)
+  37          {       
+  38   1              if(L3)
+  39   1              {
+  40   2                      RISE = OFF;
+  41   2                      FALL = OFF;
+  42   2              }
+  43   1              else
+  44   1              {
+  45   2                      if(L2)
+  46   2                      {
+  47   3                              RISE = OFF;
+  48   3                              FALL = OFF;
+  49   3                      
+  50   3                      }
+  51   2                      else
+  52   2                      {
+  53   3                              RISE = OFF;
+  54   3                              FALL = ON;
+  55   3                              ucMotor_RuningMode = 0xaa;
+C51 COMPILER V7.50   MOTOR                                                                 12/15/2008 12:20:03 PAGE 2   
+
+  56   3                      }
+  57   2                      bFisrt_Init = FALSE;
+  58   2              }
+  59   1      }
+  60          //--------------------------------------
+  61          //
+  62          //--------------------------------------
+  63          void motor_back(void)
+  64          {       
+  65   1              BACK = ON;
+  66   1              AHEAD = OFF;            
+  67   1      }
+  68          //--------------------------------------
+  69          //
+  70          //--------------------------------------
+  71          void motor_ahead(void)
+  72          {       
+  73   1              BACK = OFF;
+  74   1              AHEAD = ON;     
+  75   1      }
+  76          //--------------------------------------
+  77          //
+  78          //--------------------------------------
+  79          void motor_close(void)
+  80          {       
+  81   1                      FALL = OFF;
+  82   1                      RISE = OFF;
+  83   1                      BACK = OFF;
+  84   1                      AHEAD = OFF;    
+  85   1      }//--------------------------------------
+  86          //
+  87          //--------------------------------------
+  88          void I1_enable(void)
+  89          {       
+  90   1                      if((!L1)&&(L3))
+  91   1                      {
+  92   2                              RISE = OFF;
+  93   2                              FALL = OFF;
+  94   2                              BACK = OFF;
+  95   2                              AHEAD = OFF;
+  96   2                      }
+  97   1                      else
+  98   1                      {
+  99   2                              if(L1)
+ 100   2                              {
+ 101   3                                      RISE = OFF;
+ 102   3                                      FALL = OFF;
+ 103   3                                      if(uiI1_MotorDelay<B_VALUE)
+ 104   3                                      {
+ 105   4                                              if(!bFisrt_Init)
+ 106   4                                              {
+ 107   5                                                      BACK = ON;
+ 108   5                                                      AHEAD = OFF;
+ 109   5                                                      uiI1_MotorDelay++;
+ 110   5                                              }
+ 111   4                                      }
+ 112   3                                      else
+ 113   3                                      {
+ 114   4                                              BACK = OFF;
+ 115   4                                              AHEAD = OFF;
+ 116   4                                      }
+ 117   3                                      uiBack_Delay = uiI1_MotorDelay;
+C51 COMPILER V7.50   MOTOR                                                                 12/15/2008 12:20:03 PAGE 3   
+
+ 118   3                              }
+ 119   2                              else
+ 120   2                              {
+ 121   3                                      RISE = ON;
+ 122   3                                      FALL = OFF;
+ 123   3                                      BACK = OFF;
+ 124   3                                      AHEAD = OFF;
+ 125   3                              }
+ 126   2                              if(!L3)
+ 127   2                              {
+ 128   3                                      bFisrt_Init = FALSE;
+ 129   3                              }
+ 130   2                      }
+ 131   1      }
+ 132          //--------------------------------------
+ 133          //
+ 134          //--------------------------------------
+ 135          void I2_enable(void)
+ 136          {       
+ 137   1              static unsigned char ucTemp_DelBuff = 0x00;
+ 138   1                      //uiI1_MotorDelay = 0x00;
+ 139   1                      if((!L1)&&(L3))
+ 140   1                      {
+ 141   2                              RISE = OFF;
+ 142   2                              FALL = OFF;
+ 143   2                              BACK = OFF;
+ 144   2                              AHEAD = OFF;
+ 145   2                      }
+ 146   1                      else
+ 147   1                      {
+ 148   2                              if(!L3)
+ 149   2                              {
+ 150   3                                      ucTemp_DelBuff = 0x00;
+ 151   3                                      BACK = OFF;
+ 152   3                                      AHEAD = OFF;
+ 153   3                                      ucSwitch_Mode = 0x55;       //偏转电机到位置了，自动停止
+ 154   3                                      if(L2)
+ 155   3                                      {
+ 156   4                                              RISE = OFF;
+ 157   4                                              FALL = OFF;
+ 158   4                                      }
+ 159   3                                      else
+ 160   3                                      {
+ 161   4                                              RISE = OFF;
+ 162   4                                              FALL = ON;
+ 163   4                                      }
+ 164   3                                      uiI1_MotorDelay = 0x00; 
+ 165   3                                      bFisrt_Init = FALSE;
+ 166   3                              }
+ 167   2                              else
+ 168   2                              {
+ 169   3                                      if(uiI1_MotorDelay >0)
+ 170   3                                      {
+ 171   4                                              uiI1_MotorDelay--;
+ 172   4                                              BACK = OFF;
+ 173   4                                              AHEAD = ON;
+ 174   4                                              RISE = OFF;
+ 175   4                                              FALL = OFF;
+ 176   4                                              uiBack_Delay = uiI1_MotorDelay;
+ 177   4                                      }
+ 178   3                                      else
+ 179   3                                      {
+C51 COMPILER V7.50   MOTOR                                                                 12/15/2008 12:20:03 PAGE 4   
+
+ 180   4                                              BACK = OFF;
+ 181   4                                              AHEAD = ON;
+ 182   4                                              RISE = OFF;
+ 183   4                                              FALL = OFF;
+ 184   4                                              uiBack_Delay = uiI1_MotorDelay;
+ 185   4                                      }
+ 186   3                                      
+ 187   3                              }
+ 188   2                      }
+ 189   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    234    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

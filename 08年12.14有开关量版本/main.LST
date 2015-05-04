@@ -1,0 +1,117 @@
+C51 COMPILER V7.50   MAIN                                                                  12/15/2008 12:20:01 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include"SST89x5x4.h"
+   2          #include "main.h"
+   3          #include "key.h"
+   4          #include "init.h"
+   5          #include "X5045.h"
+   6          #include "motor.h"
+   7          #include "uart485.h"
+   8          sbit OUT_CTRL = P3^7;
+   9          
+  10          bit bC6_CTRL = 1;
+  11          unsigned char ucKey_Status = 0x00;
+  12          
+  13          //---------------------------------------------
+  14          //主函数
+  15          //---------------------------------------------
+  16          void main(void)
+  17          {
+  18   1              unsigned char temp = 0;
+  19   1              unsigned char temp1 = 0x00;
+  20   1              unsigned int i = 0;
+  21   1              init();
+  22   1              while(1)
+  23   1              {
+  24   2                              if(S3&&!L3)
+  25   2                              {
+  26   3                                      ucSwitch_Mode = 0x55;         //上升下降模式
+  27   3                              }
+  28   2                       if((I1)&&(I2))
+  29   2                       {
+  30   3                              if(ucSwitch_Mode == 0x55)      //按键功能使能
+  31   3                              {
+  32   4                                      WDT_CLR();
+  33   4                                      RstWDT();
+  34   4                                      GetKey_Status();
+  35   4                                      if(!bMotor_Reverse)
+  36   4                                      {
+  37   5                                              switch(ucKey_Status)
+  38   5                                              {
+  39   6                                                      case 0x01: 
+  40   6                                                                      motor_rise();
+  41   6                                                                      ucMsg = 0x00;
+  42   6                                                                      break;
+  43   6                                                      case 0x02: 
+  44   6                                                                      motor_close();
+  45   6                                                                      ucMsg = 0x00;
+  46   6                                                                      break;
+  47   6                                                      case 0x03: 
+  48   6                                                                      motor_fall();
+  49   6                                                                      ucMsg = 0x00;
+  50   6                                                                      break;
+  51   6                                                      case 0x05: 
+  52   6                                                                      break;
+  53   6                                                      case 0x00: 
+  54   6                                                                      RstWDT();
+  55   6                                                                      WDT_CLR();
+C51 COMPILER V7.50   MAIN                                                                  12/15/2008 12:20:01 PAGE 2   
+
+  56   6                                                                      break;
+  57   6                                                      default: 
+  58   6                                                                      break;
+  59   6                                              }
+  60   5                              }
+  61   4                              }
+  62   3                              if(ucKey_Status == 0x04)
+  63   3                              {
+  64   4                                      ucKey_Status = 0x00;
+  65   4                                      motor_close();
+  66   4                              }
+  67   3                       }
+  68   2                      WDT_CLR();
+  69   2                      RstWDT();
+  70   2                      Data_Strore();
+  71   2                      //B = 0;
+  72   2                      /*OUT_CTRL = OFF;
+  73   2                      if(RI)
+  74   2                      {
+  75   2                              temp1 = SBUF;
+  76   2                              RI = 0;
+  77   2                              OUT_CTRL = ON;
+  78   2                              TI = 0;
+  79   2                              SBUF = temp1;
+  80   2                              //OUT_CTRL = OFF;
+  81   2                              while(!TI);
+  82   2                              OUT_CTRL = OFF;
+  83   2                              TI = 0;
+  84   2                      }
+  85   2                      for(i = 0;i<10000;i++)
+  86   2                      {
+  87   2                              WDT_CLR();
+  88   2                              RstWDT();
+  89   2                      }*/
+  90   2              }
+  91   1              
+  92   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    106    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

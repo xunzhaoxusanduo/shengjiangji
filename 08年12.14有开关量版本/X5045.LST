@@ -1,0 +1,162 @@
+C51 COMPILER V7.50   X5045                                                                 12/15/2008 12:20:02 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE X5045
+OBJECT MODULE PLACED IN X5045.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE X5045.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "SST89x5x4.h"
+   2          #include "X5045.h"
+   3          
+   4          //复位看门狗
+   5          void RstWDT()
+   6          {
+   7   1          B_CS5045 = 0;
+   8   1          B_CS5045 = 1;
+   9   1      }
+  10          
+  11          //向X5045写入单字节数据
+  12          //输入：x,待写数据,address,写入数据的地址
+  13          void WrB5045(unsigned char x,unsigned char address) reentrant //数据,地址
+  14          {
+  15   1              wren();
+  16   1              B_SCLK5045 = 0;
+  17   1              B_CS5045 = 0;
+  18   1              byteout(0x2); //write
+  19   1              byteout(address);
+  20   1              byteout(x);
+  21   1              B_SCLK5045 = 0;
+  22   1              B_CS5045 = 1;
+  23   1              wip_chk();
+  24   1              wrdi();
+  25   1      }
+  26          
+  27          //从X5045读入单字节数据
+  28          //输入：address,待读数据地址
+  29          //返回：读出的数据
+  30          unsigned char RdB5045(unsigned char address)
+  31          {
+  32   1              unsigned char data x;
+  33   1              B_SCLK5045 = 0;
+  34   1              B_CS5045 = 0;
+  35   1              byteout(0x3);  //read 000h
+  36   1              byteout(address);
+  37   1              x = bytein();
+  38   1              B_SCLK5045 = 0;
+  39   1              B_CS5045 = 1;
+  40   1              return (x);
+  41   1      }
+  42          
+  43          //向X5045输出单字节
+  44          void byteout(unsigned char x)
+  45          {
+  46   1          unsigned char data i,j;
+  47   1          j = 128;
+  48   1          for(i = 0;i < 8;i++)
+  49   1          {
+  50   2              B_SCLK5045 = 0;
+  51   2              B_SI5045 = x / j;
+  52   2              B_SCLK5045 = 1;
+  53   2              x %= j;
+  54   2              j /= 2;
+  55   2          }
+C51 COMPILER V7.50   X5045                                                                 12/15/2008 12:20:02 PAGE 2   
+
+  56   1          B_SI5045 = 0;
+  57   1      }
+  58          
+  59          //等待X5045结束内部写周期
+  60          void wip_chk()
+  61          {
+  62   1          unsigned char data dat;
+  63   1          tcX5045 = 0;
+  64   1       do
+  65   1          {
+  66   2              dat = rdsr();
+  67   2              dat &= 0x1;
+  68   2              if(tcX5045 >=5 ) break;
+  69   2          }
+  70   1          while(dat);
+  71   1      }
+  72          
+  73          //5045状态寄存器读出程序
+  74          unsigned char rdsr()
+  75          {
+  76   1          unsigned char data dat;
+  77   1          B_SCLK5045 = 0;
+  78   1          B_CS5045 = 0;
+  79   1          byteout(5);
+  80   1              dat = bytein();
+  81   1              B_SCLK5045 = 0;
+  82   1              B_CS5045 = 1;
+  83   1              return (dat);
+  84   1      }
+  85          
+  86          //从X5045读出一字节数据
+  87          unsigned char bytein()
+  88          {
+  89   1          unsigned char data i,x;
+  90   1          x = 0;
+  91   1          for (i = 0;i < 8;i++)
+  92   1          {
+  93   2              B_SO5045 = 1;
+  94   2              B_SCLK5045 = 1;
+  95   2              B_SCLK5045 = 0;
+  96   2              if (B_SO5045) x = x + x +1;
+  97   2              else x <<= 1;
+  98   2          }
+  99   1          return(x);
+ 100   1      }
+ 101          
+ 102          //5045状态寄存器写入程序
+ 103          void wrsr(unsigned char x)
+ 104          {
+ 105   1          wren();
+ 106   1              B_SCLK5045 = 0;
+ 107   1              B_CS5045 = 0;
+ 108   1              byteout(1);   //wrsr
+ 109   1              byteout(x);
+ 110   1              B_SCLK5045 = 0;
+ 111   1              B_CS5045 = 1;
+ 112   1              wip_chk();
+ 113   1          wrdi();
+ 114   1      }
+ 115          
+ 116          //写允许
+ 117          void wren()
+C51 COMPILER V7.50   X5045                                                                 12/15/2008 12:20:02 PAGE 3   
+
+ 118          {
+ 119   1              B_SCLK5045 = 0;
+ 120   1              B_CS5045 = 0;
+ 121   1              byteout(6);
+ 122   1              B_SCLK5045 = 0;
+ 123   1              B_CS5045 = 1;
+ 124   1      }
+ 125          
+ 126          //写禁止
+ 127          void wrdi()
+ 128          {
+ 129   1              B_SCLK5045 = 0;
+ 130   1              B_CS5045 = 0;
+ 131   1          byteout(4);
+ 132   1          B_SCLK5045 = 0;
+ 133   1              B_CS5045 = 1;
+ 134   1      }
+ 135          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    236    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
