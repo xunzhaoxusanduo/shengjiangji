@@ -7,6 +7,8 @@
 sfr16 Timer0 = 0x8C;
 unsigned int uiSet_Value = B_VALUE;
 bit bFisrt_Init = FALSE;
+
+
 //--------------------------------------
 //
 //--------------------------------------
