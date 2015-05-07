@@ -1,0 +1,157 @@
+C51 COMPILER V9.52.0.0   UART485                                                           05/06/2015 10:33:43 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE UART485
+OBJECT MODULE PLACED IN .\uart485.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE ..\08年12.14有开关量版本\uart485.c BROWSE DEBUG OBJECTEXTEND PRINT(.\uart48
+                    -5.lst) OBJECT(.\uart485.obj)
+
+line level    source
+
+   1          #include"SST89x5x4.h"
+   2          #include "main.h"
+   3          #include "init.h"
+   4          #include "motor.h"
+   5          #include "key.h"
+   6          #include "Uart485.h"
+   7          #include "X5045.h"
+   8          unsigned char ucRev_Buf[7];
+   9          bit bRev_Flag = FALSE;
+  10          unsigned char ucMsg = 0x00;
+  11          
+  12          unsigned char ucLEDMsg = 0x00;
+  13          //----------------------------------------
+  14          //
+  15          //----------------------------------------
+  16          void Revdata_deal(void)
+  17          {
+  18   1              
+  19   1              if((ucRev_Buf[3] == (~P1))||(ucRev_Buf[3] == 0x00))
+  20   1              {
+  21   2                              switch(ucRev_Buf[4])
+  22   2                              {
+  23   3      
+  24   3                                      case 0x00:
+  25   3                                              ucMsg = STOP_MSG;
+  26   3                                              break;
+  27   3                                      case 0x01:
+  28   3                                              if(ucRev_Buf[5] == 0x01)
+  29   3                                              {
+  30   4                                                      ucMsg = RISE_MSG;
+  31   4                                              }
+  32   3                                              else
+  33   3                                              {
+  34   4                                                      ucMsg = STOP_MSG;
+  35   4                                              }
+  36   3                                              break;
+  37   3                                      case 0x02:
+  38   3                                              if(ucRev_Buf[5] == 0x01)
+  39   3                                              {
+  40   4                                                      ucMsg = FALL_MSG;
+  41   4                                              }
+  42   3                                              else
+  43   3                                              {
+  44   4                                                      ucMsg = STOP_MSG;
+  45   4                                              }
+  46   3                                              break;
+  47   3                                      case 0x05:                                                  //若要改成3，4，即可将case 0x05改成case 03
+             -,04即可
+  48   3                                              if(ucRev_Buf[5] == 0x01)
+  49   3                                              {
+  50   4                                                      ucLEDMsg = C6ON_MSG;
+  51   4                                              }
+  52   3                                              else
+  53   3                                              {
+C51 COMPILER V9.52.0.0   UART485                                                           05/06/2015 10:33:43 PAGE 2   
+
+  54   4                                                      ucLEDMsg = C6OFF_MSG;
+  55   4                                              }
+  56   3                                              break;
+  57   3                                      default :
+  58   3                                              break;
+  59   3      
+  60   3                              }
+  61   2              }
+  62   1      }
+  63          //----------------------------------------
+  64          //
+  65          //----------------------------------------
+  66          void uart_isr(void) interrupt 4
+  67          {
+  68   1              static unsigned char ptr = 0;
+  69   1              unsigned char temp = 0;
+  70   1              RstWDT();
+  71   1              WDT_CLR();
+  72   1              if (TI)
+  73   1              {
+  74   2                      TI = 0;
+  75   2              }
+  76   1              if (RI)
+  77   1              {
+  78   2                      RI = 0;
+  79   2                      temp = SBUF;
+  80   2                      if(bRev_Flag)
+  81   2                      {
+  82   3                              ucRev_Buf[ptr] = temp;
+  83   3                              ptr++;
+  84   3                              if(ptr == REV_LEN)
+  85   3                              {
+  86   4                                      ptr = 0;
+  87   4                                      bRev_Flag = FALSE;
+  88   4                                      Revdata_deal();
+  89   4                                      ucKey_Status = 0x00;
+  90   4                              }
+  91   3                      }
+  92   2                      else
+  93   2                      {
+  94   3                              if(temp == REV_HEAD)
+  95   3                              {
+  96   4                                      ptr = 0;
+  97   4                                      bRev_Flag = TRUE;
+  98   4                                      ucRev_Buf[ptr] = temp;
+  99   4                                      ptr++;
+ 100   4                              }
+ 101   3                      }
+ 102   2                              
+ 103   2                      
+ 104   2              }
+ 105   1      
+ 106   1      
+ 107   1      }
+ 108          //----------------------------------------
+ 109          //
+ 110          //----------------------------------------
+ 111          void Msg_deal(void)
+ 112          {
+ 113   1              switch(ucMsg)
+ 114   1              {
+ 115   2      
+C51 COMPILER V9.52.0.0   UART485                                                           05/06/2015 10:33:43 PAGE 3   
+
+ 116   2                      case RISE_MSG:
+ 117   2                              I1_enable();
+ 118   2                              break;
+ 119   2                      case STOP_MSG:
+ 120   2                              motor_close();
+ 121   2                              break;
+ 122   2                      case FALL_MSG:
+ 123   2                              I2_enable();
+ 124   2                              break;
+ 125   2                      default :
+ 126   2                              break;
+ 127   2              }
+ 128   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    217    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     10       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
