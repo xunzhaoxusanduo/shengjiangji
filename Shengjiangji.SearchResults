@@ -1,0 +1,3 @@
+---- interrupt Matches (2 in 2 files) ----
+Interrupt.c (08年12.14有开关量版本):void timer0_isr(void) interrupt 1
+Uart485.c (08年12.14有开关量版本):void uart_isr(void) interrupt 4
